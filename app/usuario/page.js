@@ -1,16 +1,15 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react";
-import { isTablet, isBrowser, isMobile } from 'react-device-detect';
 import { MainLayout } from "@/components/MainLayout"
 import { RegistrosUsuario } from "@/components/RegistrosUsuario";
 import ImageNext from "next/image";
 import axios from "axios";
 import useSWR from "swr";
+import useUsuario from "@/hooks/useUsuario";
 
 export default function Usuario() {
 
-    const [deviceType, setDeviceType] = useState('desktop');
     const [camara, setCamara] = useState(false);
 
     // Firma
@@ -26,9 +25,11 @@ export default function Usuario() {
     //Foto Movil
     const imagenPhone = useRef(null);
 
+    const { deviceType } = useUsuario();
+
     //Actualizacion en tiempo real
-    const fetcher = () => axios(`http://192.168.1.4:4000/api/usuario/obtener-usuarios`).then(datos => datos.data)
-    const { data, error, isLoading } = useSWR(`http://192.168.1.4:4000/api/usuario/obtener-usuarios`, fetcher, { refreshInterval: 100 })
+    const fetcher = () => axios(`${process.env.NEXT_PUBLIC_URI}/api/usuario/obtener-usuarios`).then(datos => datos.data)
+    const { data, error, isLoading } = useSWR(`${process.env.NEXT_PUBLIC_URI}/api/usuario/obtener-usuarios`, fetcher, { refreshInterval: 100 })
 
     const limpiarCanvas = (e) => {
 
@@ -142,6 +143,7 @@ export default function Usuario() {
     }
 
     const handleSubmit = async (e) => {
+
         e.preventDefault();
 
         const canvas = userPhoto.current;
@@ -152,21 +154,21 @@ export default function Usuario() {
         const dataURL = canvasRef.current.toDataURL();
         const blobFirm = await (await fetch(dataURL)).blob();
 
+        console.log(blobFirm);
+
         const datosUsuario = new FormData();
         datosUsuario.append("usuario", blobUsuario, "photo.jpeg");
         datosUsuario.append("usuario", blobFirm, "firma.jpeg");
 
         try {
 
-            await axios.post(`http://192.168.1.4:4000/api/usuario/ingresar`, datosUsuario, {
+            await axios.post(`${process.env.NEXT_PUBLIC_URI}/api/usuario/ingresar`, datosUsuario, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
             })
 
-        } catch (error) {
-            console.log(error.message);
-        }
+        } catch (error) { console.log(error.message) }
 
         limpiarForm(e);
 
@@ -190,17 +192,6 @@ export default function Usuario() {
 
         contexto.fillRect(0, 0, width, height);
     }
-
-    // Detectar tipo de pantalla (móvil / desktop)
-    useEffect(() => {
-        if (isMobile) {
-            setDeviceType('mobile');
-        } else if (isTablet) {
-            setDeviceType('tablet');
-        } else if (isBrowser) {
-            setDeviceType('desktop');
-        }
-    }, []);
 
     // Firma del canvas
     useEffect(() => {

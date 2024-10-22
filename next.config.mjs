@@ -2,8 +2,9 @@
 const nextConfig = {
     images: {
         formats: ['image/avif', 'image/webp'],
-        domains: ['192.168.1.4', 'localhost', '127.0.0.1']
-    }
+        domains: ['192.168.1.25', 'localhost']
+    },
+    output: 'export',
 };
 
 export default nextConfig;

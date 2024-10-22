@@ -1,5 +1,3 @@
-
-
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -25,6 +23,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body
+        id="__next"
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UsuarioProvider>
